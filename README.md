@@ -13,6 +13,7 @@ Add the script below to your website.
   data-engrid-url="https://give.oxfamamerica.org/page/35383/donate/1?mode=DEMO"
   data-engrid-overlay-bgcolor="#667eea"
   data-engrid-content-bgcolor="#ffffff"
+  data-engrid-max-width="650px"
 ></script>
 ```
 
@@ -21,6 +22,7 @@ Add the script below to your website.
 - **data-engrid-url**: The URL of the ENgrid Donation Page Iframe you want to embed **(required)**
 - **data-engrid-overlay-bgcolor**: The background color of the overlay (default: #000000).
 - **data-engrid-overlay-bgcolor**: The background color of the content (default: #ffffff).
+- **data-engrid-max-width**: The maximum width of the content (default: 800px).
 
 Change the data attributes with the information you need.
 
