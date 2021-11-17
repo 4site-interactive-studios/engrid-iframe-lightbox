@@ -12,6 +12,8 @@ export class iFrameLightbox {
     this.contentBgColor =
       scriptTag.getAttribute("data-engrid-content-bgcolor") || "#FFFFFF";
     this.maxWidth = scriptTag.getAttribute("data-engrid-max-width") || "800px";
+    this.trigger = scriptTag.getAttribute("data-engrid-trigger") || false;
+    this.triggered = false;
     if (this.url && this.shouldRun()) {
       this.init();
       return;
@@ -21,8 +23,7 @@ export class iFrameLightbox {
   init() {
     console.log("iFrameLightbox init");
     this.createLightbox();
-    window.setTimeout(this.open.bind(this), 500);
-
+    this.triggerLightbox();
     window.onmessage = (e) => {
       const iframe_id = "engrid-iframe";
 
@@ -72,6 +73,81 @@ export class iFrameLightbox {
                </div>
     `;
     return content;
+  }
+  getTriggerType(trigger) {
+    /**
+     * Any integer (e.g., 5) -> Number of seconds to wait before triggering the lightbox
+     * Any pixel (e.g.: 100px) -> Number of pixels to scroll before trigger the lightbox
+     * Any percentage (e.g., 30%) -> Percentage of the height of the page to scroll before triggering the lightbox
+     * The word exit -> Triggers the lightbox when the mouse leaves the DOM area (exit intent).
+     * With 0 as default, the lightbox will trigger as soon as the page finishes loading.
+     */
+    console.log("Trigger Value: ", trigger);
+
+    if (!isNaN(trigger)) {
+      return "seconds";
+    } else if (trigger.includes("px")) {
+      return "pixels";
+    } else if (trigger.includes("%")) {
+      return "percent";
+    } else if (trigger.includes("exit")) {
+      return "exit";
+    } else {
+      return false;
+    }
+  }
+  scrollTriggerPx(e) {
+    const triggerValue = Number(this.trigger.replace("px", ""));
+    if (window.scrollY >= triggerValue && !this.triggered) {
+      this.open();
+      this.triggered = true;
+    }
+  }
+  scrollTriggerPercent(e) {
+    const triggerValue = Number(this.trigger.replace("%", ""));
+    const clientHeight = document.documentElement.clientHeight;
+    const scrollHeight = document.documentElement.scrollHeight - clientHeight;
+    const target = (triggerValue / 100) * scrollHeight;
+    if (window.scrollY >= target && !this.triggered) {
+      this.open();
+      this.triggered = true;
+    }
+  }
+  triggerLightbox() {
+    console.log("iFrameLightbox triggerLightbox");
+    const triggerType = this.getTriggerType(this.trigger);
+    console.log("Trigger type: ", triggerType);
+    if (triggerType === false) {
+      this.trigger = 500;
+    }
+    if (triggerType === "seconds") {
+      this.trigger = Number(this.trigger) * 1000;
+    }
+    if (triggerType === "seconds" || triggerType === false) {
+      window.setTimeout(this.open.bind(this), this.trigger);
+    }
+    if (triggerType === "exit") {
+      document.body.addEventListener("mouseout", (e) => {
+        if (e.clientY < 0 && !this.triggered) {
+          this.open();
+          this.triggered = true;
+        }
+      });
+    }
+    if (triggerType === "pixels") {
+      document.addEventListener(
+        "scroll",
+        this.scrollTriggerPx.bind(this),
+        true
+      );
+    }
+    if (triggerType === "percent") {
+      document.addEventListener(
+        "scroll",
+        this.scrollTriggerPercent.bind(this),
+        true
+      );
+    }
   }
   open() {
     this.overlay.classList.remove("is-hidden");
