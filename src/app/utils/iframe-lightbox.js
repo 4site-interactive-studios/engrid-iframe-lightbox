@@ -69,7 +69,7 @@ export class iFrameLightbox {
     let content = "";
     content = `<div class="engrid-content" style="background-color: ${this.contentBgColor}; max-width: ${this.maxWidth}">
                 <a href="#" class="engrid-close"></a>
-                <iframe id="engrid-iframe" src="${this.url}" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                <iframe allow="payment" id="engrid-iframe" src="${this.url}" frameborder="0" scrolling="no" allowfullscreen></iframe>
                </div>
     `;
     return content;
